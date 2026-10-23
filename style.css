@@ -1983,8 +1983,8 @@ section {
 }
 
 .footer-col {
-  flex: 1 1 160px;
-  min-width: 160px;
+  flex: 1 1 200px;
+  min-width: 180px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.03));
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 14px;
@@ -2043,6 +2043,8 @@ section {
   padding: 7px 8px;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.02);
+  width: 100%;
+  min-width: 0;
 }
 
 .footer-icon {
@@ -2051,6 +2053,7 @@ section {
   font-size: 14px;
   line-height: 1.5;
   color: #9fe0b5;
+  flex-shrink: 0;
 }
 
 .footer-item__text {
@@ -2058,6 +2061,10 @@ section {
   text-decoration: none;
   line-height: 1.5;
   font-size: 13px;
+  display: inline-block;
+  width: 100%;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .footer-item__link {
