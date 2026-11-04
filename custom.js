@@ -14,6 +14,13 @@
     },
   };
 
+  function prefersReducedMotion() {
+    return (
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    );
+  }
+
   function getPackageRate(packageKey, dateValue) {
     var pricing = PACKAGE_PRICING[packageKey];
     if (!pricing) return null;
@@ -39,8 +46,68 @@
     return amount.toLocaleString("en-IN");
   }
 
+  // Hero and navigation
+  function setupHomeSlideshow() {
+    var slideshow = document.getElementById("homeSlideshow");
+    if (!slideshow) return;
+
+    var slides = Array.prototype.slice.call(
+      slideshow.querySelectorAll(".video-hero__slide"),
+    );
+    if (slides.length < 2) return;
+
+    if (prefersReducedMotion()) return;
+
+    var currentIndex = slides.findIndex(function (slide) {
+      return slide.classList.contains("is-active");
+    });
+    if (currentIndex < 0) currentIndex = 0;
+
+    window.setInterval(function () {
+      if (document.hidden) return;
+
+      slides[currentIndex].classList.remove("is-active");
+      currentIndex = (currentIndex + 1) % slides.length;
+      slides[currentIndex].classList.add("is-active");
+    }, 5000);
+  }
+
   function updatePackagePricing() {
     var dateValue = getSelectedBookingDate();
+
+    document.querySelectorAll("[data-package-option-price]").forEach(
+      function (priceElement) {
+        var rate = getPackageRate(
+          priceElement.getAttribute("data-package-option-price"),
+          dateValue,
+        );
+        if (!rate) return;
+
+        priceElement.textContent =
+          "Rs " + formatRupees(rate.amount) + " / person / night";
+      },
+    );
+
+    var packageDropdown = document.getElementById("packageDropdown");
+    var selectedPackage = packageDropdown
+      ? packageDropdown.querySelector(".package-dropdown__selected")
+      : null;
+    var selectedPrice = packageDropdown
+      ? packageDropdown.querySelector(".package-dropdown__selected-price")
+      : null;
+    if (selectedPackage && selectedPrice && selectedPackage.textContent.trim()) {
+      var selectedPackageKey = Object.keys(PACKAGE_PRICING).find(function (key) {
+        return PACKAGE_PRICING[key].name === selectedPackage.textContent.trim();
+      });
+      var selectedRate = selectedPackageKey
+        ? getPackageRate(selectedPackageKey, dateValue)
+        : null;
+      if (selectedRate) {
+        selectedPrice.textContent =
+          "Rs " + formatRupees(selectedRate.amount) + " / person / night";
+        selectedPrice.style.display = "block";
+      }
+    }
 
     document.querySelectorAll(".plan-price-title[data-package-price]").forEach(
       function (priceElement) {
@@ -53,7 +120,7 @@
         priceElement.innerHTML =
           "Rs " +
           formatRupees(rate.amount) +
-          ' / <small>Day</small><span class="plan-price-period">' +
+          ' / <small>person / night</small><span class="plan-price-period">' +
           rate.label +
           "</span>";
       },
@@ -62,7 +129,7 @@
     var priceHint = document.getElementById("packagePriceHint");
     if (priceHint) {
       priceHint.textContent =
-        "Our prices vary, so please check the details in the respective package.";
+        "Prices may vary based on your check-in date so please check the details of the package";
     }
 
     var modal = document.getElementById("packageModal");
@@ -70,7 +137,10 @@
     if (modal && currentPackage && modal.classList.contains("is-open")) {
       var modalRate = getPackageRate(currentPackage, dateValue);
       if (modalRate) {
-        var price = "Rs " + formatRupees(modalRate.amount) + " <small>/ trip</small>";
+        var price =
+          "Rs " +
+          formatRupees(modalRate.amount) +
+          " <small>/ person / night</small>";
         var priceLabel = modalRate.label;
         var modalPrice = document.getElementById("pkgPrice");
         var ctaPrice = document.getElementById("pkgCtaPrice");
@@ -86,6 +156,70 @@
 
   function setBodyOverflow(isLocked) {
     document.body.style.overflow = isLocked ? "hidden" : "";
+  }
+
+  function setupAccessibleDialog(dialog) {
+    if (!dialog) return;
+    dialog.setAttribute("aria-hidden", "true");
+
+    dialog.addEventListener("keydown", function (event) {
+      if (event.key !== "Tab") return;
+
+      var focusable = Array.prototype.slice.call(
+        dialog.querySelectorAll(
+          'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter(function (element) {
+        return element.getClientRects().length > 0;
+      });
+
+      if (!focusable.length) {
+        event.preventDefault();
+        return;
+      }
+
+      var first = focusable[0];
+      var last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    });
+  }
+
+  function openAccessibleDialog(dialog, initialFocus) {
+    var wasOpen = dialog.classList.contains("is-open");
+    if (!wasOpen) dialog.__returnFocusElement = document.activeElement;
+    dialog.classList.add("is-open");
+    dialog.setAttribute("aria-hidden", "false");
+    setBodyOverflow(true);
+
+    if (!wasOpen) {
+      var focusTarget =
+        initialFocus ||
+        dialog.querySelector(
+          'button:not([disabled]), a[href], input:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        );
+      if (focusTarget) {
+        var focusDialog = function () {
+          if (dialog.classList.contains("is-open")) focusTarget.focus();
+        };
+        window.setTimeout(focusDialog, 0);
+      }
+    }
+  }
+
+  function closeAccessibleDialog(dialog) {
+    dialog.classList.remove("is-open");
+    var returnFocusElement = dialog.__returnFocusElement;
+    if (returnFocusElement && returnFocusElement.isConnected) {
+      returnFocusElement.focus();
+    }
+    dialog.setAttribute("aria-hidden", "true");
+    setBodyOverflow(false);
   }
 
   function setupNavActiveState() {
@@ -142,14 +276,19 @@
 
     function closeOverlay() {
       overlay.classList.remove("is-open");
+      overlay.setAttribute("aria-hidden", "true");
       hamburger.classList.remove("hamburger--active");
+      hamburger.setAttribute("aria-expanded", "false");
       document.body.classList.remove("body--menu-open");
       setBodyOverflow(false);
+      hamburger.focus();
     }
 
     hamburger.addEventListener("click", function () {
       var isOpen = overlay.classList.toggle("is-open");
+      overlay.setAttribute("aria-hidden", String(!isOpen));
       hamburger.classList.toggle("hamburger--active", isOpen);
+      hamburger.setAttribute("aria-expanded", String(isOpen));
       document.body.classList.toggle("body--menu-open", isOpen);
       setBodyOverflow(isOpen);
     });
@@ -192,6 +331,7 @@
     }
   }
 
+  // Gallery and lightbox
   function setupGallery() {
     var grid = document.getElementById("galleryGrid");
     if (!grid) return;
@@ -282,7 +422,9 @@
     grid.innerHTML = galleryImages
       .map(function (item, index) {
         return (
-          '<figure class="gallery-item" data-reveal="' +
+          '<figure class="gallery-item" role="button" tabindex="0" aria-label="Open gallery image ' +
+          (index + 1) +
+          '" data-reveal="' +
           index +
           '">' +
           '<div class="gallery-item__image-wrap">' +
@@ -326,6 +468,7 @@
 
     var lightbox = document.getElementById("premiumLightbox");
     if (!lightbox) return;
+    setupAccessibleDialog(lightbox);
 
     var currentIndex = 0;
 
@@ -345,17 +488,23 @@
       if (counterEl)
         counterEl.textContent = currentIndex + 1 + " / " + items.length;
 
-      lightbox.classList.add("is-open");
-      setBodyOverflow(true);
+      openAccessibleDialog(
+        lightbox,
+        lightbox.querySelector(".premium-lightbox__close"),
+      );
     }
 
     function closeLightbox() {
-      lightbox.classList.remove("is-open");
-      setBodyOverflow(false);
+      closeAccessibleDialog(lightbox);
     }
 
     items.forEach(function (figure, index) {
       figure.addEventListener("click", function () {
+        openLightbox(index);
+      });
+      figure.addEventListener("keydown", function (event) {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
         openLightbox(index);
       });
     });
@@ -384,12 +533,16 @@
     });
   }
 
+  // Activity cards and detail dialog
   function setupActivitiesAccordion() {
     var panels = document.querySelectorAll(".accordion-panel");
     if (!panels.length) return;
 
     var currentIndex = 0;
     var rotationTimer = null;
+    var rotationQuery = window.matchMedia(
+      "(min-width: 769px) and (hover: hover) and (pointer: fine)"
+    );
 
     function setActivePanel(index) {
       currentIndex = index;
@@ -400,10 +553,17 @@
 
     function startAutoRotation() {
       if (rotationTimer) clearInterval(rotationTimer);
+      if (!rotationQuery.matches || prefersReducedMotion()) return;
       rotationTimer = setInterval(function () {
         var nextIndex = (currentIndex + 1) % panels.length;
         setActivePanel(nextIndex);
       }, 4000);
+    }
+
+    if (rotationQuery.addEventListener) {
+      rotationQuery.addEventListener("change", startAutoRotation);
+    } else {
+      rotationQuery.addListener(startAutoRotation);
     }
 
     panels.forEach(function (panel, index) {
@@ -421,6 +581,7 @@
   function setupActivityModal() {
     var modal = document.getElementById("activityModal");
     if (!modal) return;
+    setupAccessibleDialog(modal);
 
     var backdrop = document.getElementById("activityModalBackdrop");
     var closeBtn = document.getElementById("activityModalClose");
@@ -525,11 +686,11 @@
         pricing: [
           {
             option: "Deluxe Cottage (Cooler)",
-            price: "Rs 2,000/person",
+            price: "Rs 2,000/person/night (weekend rate)",
           },
           {
             option: "Deluxe Cottage (AC)",
-            price: "Rs 2,500/person",
+            price: "Rs 2,500/person/night (weekend rate)",
           },
         ],
         pricingNote: "",
@@ -687,13 +848,11 @@
 
     function openActivity(name) {
       renderActivity(name);
-      modal.classList.add("is-open");
-      setBodyOverflow(true);
+      openAccessibleDialog(modal, closeBtn);
     }
 
     function closeActivity() {
-      modal.classList.remove("is-open");
-      setBodyOverflow(false);
+      closeAccessibleDialog(modal);
     }
 
     document.querySelectorAll(".accordion-panel__btn").forEach(function (button) {
@@ -738,6 +897,7 @@
     };
   }
 
+  // Reviews and accordions
   function setupTestimonials() {
     var track = document.getElementById("testimonialsTrack");
     var prevBtn = document.getElementById("testimonialPrev");
@@ -755,8 +915,13 @@
     );
     if (!items.length) return;
 
-    var perPage =
-      window.innerWidth <= 768 ? 1 : window.innerWidth <= 991 ? 2 : 3;
+    function getTestimonialsPerPage() {
+      if (window.innerWidth <= 600) return 1;
+      if (window.innerWidth <= 991) return 2;
+      return 3;
+    }
+
+    var perPage = getTestimonialsPerPage();
     var currentPage = 0;
     var totalPages = Math.ceil(items.length / perPage);
     var timer = null;
@@ -810,6 +975,7 @@
 
     function resetTimer() {
       if (timer) clearInterval(timer);
+      if (prefersReducedMotion()) return;
       timer = setInterval(goNext, 4000);
     }
 
@@ -832,8 +998,7 @@
     }
 
     window.addEventListener("resize", function () {
-      var nextPerPage =
-        window.innerWidth <= 768 ? 1 : window.innerWidth <= 991 ? 2 : 3;
+      var nextPerPage = getTestimonialsPerPage();
       if (nextPerPage !== perPage) {
         perPage = nextPerPage;
         totalPages = Math.ceil(items.length / perPage);
@@ -909,6 +1074,7 @@
     });
   }
 
+  // Booking form
   function setupDropdowns() {
     var activitiesDropdown = document.getElementById("activitiesDropdown");
     var activitiesBtn = document.getElementById("activitiesDropdownBtn");
@@ -1018,6 +1184,22 @@
     if (packageDropdown && packageBtn && packagePanel) {
       packageBtn.addEventListener("click", function (event) {
         event.stopPropagation();
+        var dateField = document.getElementById("date");
+        var packageError = document.getElementById("error-package");
+        if (!dateField || !dateField.value) {
+          if (packageError) {
+            packageError.textContent = "First select the check-in date.";
+          }
+          packageDropdown.classList.remove("package-dropdown--open");
+          packageBtn.setAttribute("aria-expanded", "false");
+          packagePanel.setAttribute("aria-hidden", "true");
+          return;
+        }
+
+        if (packageError) {
+          packageError.textContent = "";
+        }
+
         var isOpen = packageDropdown.classList.toggle("package-dropdown--open");
         packageBtn.setAttribute("aria-expanded", String(isOpen));
         packagePanel.setAttribute("aria-hidden", String(!isOpen));
@@ -1028,6 +1210,18 @@
         .forEach(function (option) {
           option.addEventListener("click", function (event) {
             event.stopPropagation();
+            var dateField = document.getElementById("date");
+            var packageError = document.getElementById("error-package");
+            if (!dateField || !dateField.value) {
+              if (packageError) {
+                packageError.textContent = "First select the check-in date.";
+              }
+              packageDropdown.classList.remove("package-dropdown--open");
+              packageBtn.setAttribute("aria-expanded", "false");
+              packagePanel.setAttribute("aria-hidden", "true");
+              return;
+            }
+
             var value = option.getAttribute("data-value");
             var placeholder = packageDropdown.querySelector(
               ".package-dropdown__placeholder",
@@ -1040,6 +1234,10 @@
               placeholder.style.display = "none";
               selected.style.display = "block";
               selected.textContent = value;
+            }
+
+            if (packageError) {
+              packageError.textContent = "";
             }
 
             updatePackagePricing();
@@ -1057,6 +1255,33 @@
         }
       });
     }
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key !== "Escape") return;
+
+      if (
+        activitiesDropdown &&
+        activitiesDropdown.classList.contains("activities-dropdown--open")
+      ) {
+        activitiesDropdown.classList.remove("activities-dropdown--open");
+        if (activitiesField) {
+          activitiesField.classList.remove("field--dropdown--open");
+        }
+        activitiesBtn.setAttribute("aria-expanded", "false");
+        activitiesPanel.setAttribute("aria-hidden", "true");
+        activitiesBtn.focus();
+      }
+
+      if (
+        packageDropdown &&
+        packageDropdown.classList.contains("package-dropdown--open")
+      ) {
+        packageDropdown.classList.remove("package-dropdown--open");
+        packageBtn.setAttribute("aria-expanded", "false");
+        packagePanel.setAttribute("aria-hidden", "true");
+        packageBtn.focus();
+      }
+    });
   }
 
   function setupForm() {
@@ -1081,6 +1306,17 @@
     function clearError(key) {
       var errorNode = document.getElementById("error-" + key);
       if (errorNode) errorNode.textContent = "";
+    }
+
+    function handlePackageDateRequirement() {
+      var dateField = form.querySelector("#date");
+      if (!dateField || dateField.value) {
+        clearError("package");
+        return true;
+      }
+
+      showError("package", "First select the check-in date.");
+      return false;
     }
 
     function isValidPhone(phone) {
@@ -1147,10 +1383,14 @@
         clearError("activities");
       }
 
+      var dateField = form.querySelector("#date");
       var packageValue = document.querySelector(
         "#packageDropdown .package-dropdown__selected",
       );
-      if (!packageValue || !packageValue.textContent.trim()) {
+      if (!dateField || !dateField.value) {
+        ok = false;
+        showError("package", "First select the check-in date.");
+      } else if (!packageValue || !packageValue.textContent.trim()) {
         ok = false;
         showError("package", "Please select a package.");
       } else {
@@ -1158,10 +1398,15 @@
       }
 
       var peopleField = form.querySelector("#people");
-      var people = parseInt(peopleField.value, 10);
-      if (!peopleField.value || Number.isNaN(people) || people < 1) {
+      var people = Number(peopleField.value);
+      if (
+        !peopleField.value ||
+        !Number.isInteger(people) ||
+        people < 1 ||
+        people > 50
+      ) {
         ok = false;
-        showError("people", "Please enter number of people (min 1).");
+        showError("people", "Please enter a whole number between 1 and 50.");
       } else {
         clearError("people");
       }
@@ -1184,7 +1429,10 @@
       var month = String(now.getMonth() + 1).padStart(2, "0");
       var day = String(now.getDate()).padStart(2, "0");
       dateField.min = year + "-" + month + "-" + day;
-      dateField.addEventListener("change", updatePackagePricing);
+      dateField.addEventListener("change", function () {
+        clearError("package");
+        updatePackagePricing();
+      });
     }
 
     form.addEventListener("submit", function (event) {
@@ -1247,7 +1495,19 @@
           "Special Requests": requests,
         }),
       })
-        .then(function () {
+        .then(function (response) {
+          if (!response.ok) {
+            throw new Error(
+              "Booking service returned HTTP " + response.status + ".",
+            );
+          }
+          return response.json();
+        })
+        .then(function (result) {
+          if (result && (result.success === false || result.success === "false")) {
+            throw new Error("Booking service did not accept the enquiry.");
+          }
+
           setStatus(
             "success",
             "Thank you! Your booking enquiry has been sent. We will contact you shortly.",
@@ -1303,9 +1563,11 @@
     });
   }
 
+  // Package details dialog and page footer
   function setupPackageModal() {
     var modal = document.getElementById("packageModal");
     if (!modal) return;
+    setupAccessibleDialog(modal);
 
     var PACKAGES = {
       Villager: {
@@ -1316,8 +1578,8 @@
         ],
         name: "Deluxe Cottage (Cooler)",
         price: PACKAGE_PRICING.Villager.weekday,
-        duration: "1 Days / 1 Nights",
-        location: "Himaliyan Foothills",
+        duration: "1 day / 1 night",
+        location: "Himalayan Foothills",
         summary:
           "Comfortable Deluxe Cooler Cottage Accommodation for your short escape with riverside camping, forest walks, waterfall views, and warm village hospitality near Shivpuri.",
         highlights: [
@@ -1368,8 +1630,8 @@
         ],
         name: "Deluxe Cottage (AC)",
         price: PACKAGE_PRICING.Tourer.weekday,
-        duration: "1 Days / 1 Nights",
-        location: "Himaliyan Foothills",
+        duration: "1 day / 1 night",
+        location: "Himalayan Foothills",
         summary:
           "Comfortable Deluxe AC Cottage Accommodation with breathtaking views for your short escape with riverside camping, forest walks, waterfall views, and warm village hospitality near Shivpuri.",
         highlights: [
@@ -1434,6 +1696,7 @@
 
       function startAutoRotate() {
         clearAutoRotate();
+        if (prefersReducedMotion()) return;
         modal.__pkgCarouselTimer = setInterval(function () {
           currentIndex = (currentIndex + 1) % images.length;
           renderCarousel();
@@ -1506,7 +1769,10 @@
         pkg.location +
         "</span>";
       document.getElementById("pkgSummary").innerHTML = pkg.summary;
-      var price = "Rs " + formatRupees(rate ? rate.amount : pkg.price) + " <small>/ trip</small>";
+      var price =
+        "Rs " +
+        formatRupees(rate ? rate.amount : pkg.price) +
+        " <small>/ person / night</small>";
       document.getElementById("pkgPrice").innerHTML = price;
       document.getElementById("pkgCtaPrice").innerHTML = price;
       if (rate) {
@@ -1565,8 +1831,7 @@
       if (!pkg) return;
       modal.setAttribute("data-current-pkg", name);
       updateModalContent(pkg);
-      modal.classList.add("is-open");
-      setBodyOverflow(true);
+      openAccessibleDialog(modal, document.getElementById("pkgModalClose"));
     }
 
     function closePackage() {
@@ -1574,8 +1839,7 @@
         clearInterval(modal.__pkgCarouselTimer);
         modal.__pkgCarouselTimer = null;
       }
-      modal.classList.remove("is-open");
-      setBodyOverflow(false);
+      closeAccessibleDialog(modal);
     }
 
     document.querySelectorAll(".plan").forEach(function (plan) {
@@ -1666,6 +1930,7 @@
     if (footerYear) footerYear.textContent = new Date().getFullYear();
   }
 
+  setupHomeSlideshow();
   setupNavActiveState();
   setupMobileNav();
   setupRevealItems();

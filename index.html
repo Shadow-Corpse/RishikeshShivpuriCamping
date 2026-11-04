@@ -153,6 +153,8 @@
 
 <body>
 
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
 <!-- === Premium Navigation section === -->
 <nav class="top-nav" id="premiumNav" aria-label="Primary">
   <div class="top-nav__inner">
@@ -177,7 +179,7 @@
       <span>BOOK NOW</span>
     </a>
 
-    <button class="nav-hamburger" id="navHamburger" type="button" aria-label="Toggle navigation menu">
+    <button class="nav-hamburger" id="navHamburger" type="button" aria-label="Toggle navigation menu" aria-controls="mobileOverlay" aria-expanded="false">
       <span class="hamburger-box">
         <span class="hamburger-inner"></span>
       </span>
@@ -186,12 +188,14 @@
 </nav>
 
 <!-- Mobile Menu Overlay -->
-<div class="mobile-overlay" id="mobileOverlay">
+<div class="mobile-overlay" id="mobileOverlay" aria-hidden="true">
   <div class="mobile-overlay__inner">
     <a href="#home" class="mobile-overlay__link smoothScroll">Home</a>
     <a href="#activities" class="mobile-overlay__link smoothScroll">Activities</a>
+    <a href="#about" class="mobile-overlay__link smoothScroll">About</a>
     <a href="#work" class="mobile-overlay__link smoothScroll">Experience</a>
     <a href="#portfolio" class="mobile-overlay__link smoothScroll">Gallery</a>
+    <a href="#testimonials-faq" class="mobile-overlay__link smoothScroll">FAQs</a>
     <a href="#plan" class="mobile-overlay__link smoothScroll">Plans</a>
     <a href="#contact" class="mobile-overlay__link smoothScroll">Book</a>
     <a href="#contact" class="book-now-btn smoothScroll" aria-label="Book now">
@@ -200,35 +204,40 @@
   </div>
 </div>
 
+<main id="main-content">
+
 <!-- === Homepage section === -->
 <section id="home">
-	<!-- Hero Video -->
+	<!-- Home slideshow: add or remove an image slide here. -->
 	<section id="video-hero" class="video-hero">
-    <video class="video-hero__bg" autoplay muted loop playsinline preload="auto" poster="Media/HomeSection/Home1.jpg">
-	    <!-- <source src="Media/HomeSection/video.mp4" type="video/mp4"> -->
-	  </video>
+    <div class="video-hero__slideshow" id="homeSlideshow" aria-hidden="true">
+      <img class="video-hero__slide is-active" src="Media/HomeSection/Home1.jpg" alt="" />
+      <img class="video-hero__slide" src="Media/HomeSection/Home%202.jpg" alt="" />
+      <img class="video-hero__slide" src="Media/HomeSection/Home%203.jpg" alt="" />
+      <img class="video-hero__slide" src="Media/HomeSection/Home%204.jpg" alt="" />
+    </div>
 	  <div class="video-hero__overlay"></div>
-	  <div class="container video-hero__content">
-	    <div class="row">
-	      <div class="col-md-12 text-center">
-	        <h1 class="video-hero__title">YOUR ESCAPE INTO NATURE</h1>
-	        <p class="video-hero__subtitle">Step out from the noise and reconnect with nature. Enjoy peaceful and beautiful surroundings, comforting stays and unforgettable moments under the open sky.</p>
-	        <div class="video-hero__cta">
-          <a href="#work" class="home-btn explore-btn smoothScroll">Explore CAMP</a>
-	          <a href="#contact" class="home-btn smoothScroll">BOOK YOUR STAY</a>
-	        </div>
-	        <!-- Inline trust bar inside hero content -->
-	        <div class="video-hero__trust-row">
-	          <div class="video-hero__trust-item">Certified guides</div>
-            <div class="video-hero__trust-item">4.1/5 rating</div>
-	          <div class="video-hero__trust-item">8+ years</div>
-	          <div class="video-hero__trust-item">50+ trips/season</div>
-	          <div class="video-hero__trust-item">24/7 support</div>
-	          <div class="video-hero__trust-item">Best price</div>
-	        </div>
-	      </div>
-	    </div>
-	  </div>
+    <div class="container video-hero__content">
+      <h1 class="video-hero__title">Your escape<br>into <em>nature.</em></h1>
+      <p class="video-hero__subtitle">Step out from the noise and reconnect with nature. Enjoy peaceful and beautiful surroundings, comforting stays and unforgettable moments under the open sky.</p>
+      <div class="video-hero__cta">
+        <a href="#contact" class="home-btn smoothScroll">BOOK YOUR STAY <span aria-hidden="true">↗</span></a>
+        <a href="#work" class="video-hero__text-link smoothScroll">Explore experiences <span aria-hidden="true">↓</span></a>
+      </div>
+      <div class="video-hero__trust-row" aria-label="Why choose us">
+        <div class="video-hero__trust-item">Certified guides</div>
+        <div class="video-hero__trust-item">4.1/5 rating</div>
+        <div class="video-hero__trust-item">8+ years</div>
+        <div class="video-hero__trust-item">50+ trips/season</div>
+        <div class="video-hero__trust-item">24/7 support</div>
+        <div class="video-hero__trust-item">Best price</div>
+      </div>
+    </div>
+    <div class="video-hero__bottom">
+      <a href="#activities" class="smoothScroll"><span class="video-hero__scroll-line" aria-hidden="true"></span> SCROLL TO EXPLORE</a>
+      <span>IN THE FOOTHILLS OF THE HIMALAYAS</span>
+    </div>
+    <div class="video-hero__side-note" aria-hidden="true">A QUIETER KIND OF ESCAPE</div>
 	</section>
 </section>
 
@@ -361,7 +370,7 @@
     </div>
   </div>
 </section>
-<div class="activity-modal" id="activityModal" role="dialog" aria-modal="true" aria-label="Activity details">
+<div class="activity-modal" id="activityModal" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Activity details">
   <div class="activity-modal__backdrop" id="activityModalBackdrop"></div>
   <div class="activity-modal__container">
     <button class="activity-modal__close" id="activityModalClose" type="button" aria-label="Close activity details">&times;</button>
@@ -399,11 +408,18 @@
 	<div class="container">
 		<div class="row">
 
-			<div class="section-title">
-				<h5 class="wow bounceIn">WHY CHOOSE US?</h5>
-				<h2 class="heading color-white">WHO WE ARE</h2>
-        <p class="color-white">We believe Rishikesh is meant to be experinced, and not just visited. The best memories are made away from the ordinary. So, We create unforgettable journeys through this spiritual place that brings you closer to the Nature. With local knowledge, thoughtful planning, and a deep respect for the landscapes we explore.</p>
-			</div>
+      <div class="about-editorial">
+			  <div class="section-title">
+				  <h5 class="wow bounceIn">THE ART OF GETTING AWAY</h5>
+				  <h2 class="heading color-white">Room to breathe.<br><em>Space to belong.</em></h2>
+          <p class="color-white">We believe Rishikesh is meant to be experienced, not just visited. With local knowledge, thoughtful planning, and respect for the landscape, we create stays that bring you closer to nature.</p>
+			  </div>
+        <figure class="about-editorial__image">
+          <img src="Media/Gallery/G%20(5).jpg" alt="A guest taking in the green Himalayan foothills at the camp" loading="lazy" />
+          <figcaption>A PLACE BETWEEN WATER &amp; WOODS</figcaption>
+          <span aria-hidden="true"></span>
+        </figure>
+      </div>
 
 			<div class="row-box">
 				<div class="sub-box">
@@ -415,17 +431,17 @@
 
 				<div class="sub-box">
 					<h2 class="mobile-top">WHY CHOOSE US?</h2>
-					<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+					<div class="panel-group" id="accordion">
 
 				    <div class="panel panel-default">
-					   <div class="panel-heading" role="tab" id="headingOne">
+					   <div class="panel-heading" id="headingOne">
 						  <h4 class="panel-title">
               <button type="button" class="btn btn-link about-dropdown-btn" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
                 <span>Personal Planning</span><span class="about-dropdown-icon" aria-hidden="true"></span>
               </button>
 						  </h4>
 					   </div>
-						   <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+						   <div id="collapseOne" class="panel-collapse collapse in" role="region" aria-labelledby="headingOne">
 							  <div class="panel-body">
                 <p>Tell us how you want to spend your time outdoors and we will help shape the right experience, pace, and itinerary for your group.</p>
 							  </div>
@@ -433,14 +449,14 @@
 				    </div>
 
 					<div class="panel panel-default">
-					   <div class="panel-heading" role="tab" id="headingTwo">
+					   <div class="panel-heading" id="headingTwo">
 						  <h4 class="panel-title">
               <button type="button" class="btn btn-link about-dropdown-btn" data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
                 <span>Experienced Guides</span><span class="about-dropdown-icon" aria-hidden="true"></span>
               </button>
 						  </h4>
 					   </div>
-						   <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+						   <div id="collapseTwo" class="panel-collapse collapse" role="region" aria-labelledby="headingTwo">
 							  <div class="panel-body">
                 <p>Our guides know the river, terrain, and changing conditions firsthand. They bring calm instruction, local stories, and a genuine respect for every guest.</p>
 							  </div>
@@ -448,12 +464,12 @@
 				    </div>
 
 					<div class="panel panel-default">
-						   <div class="panel-heading" role="tab" id="headingThree">
+						   <div class="panel-heading" id="headingThree">
 							    <h4 class="panel-title">
                     <button type="button" class="btn btn-link about-dropdown-btn" data-toggle="collapse" data-parent="#accordion" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree"><span>Safety First</span><span class="about-dropdown-icon" aria-hidden="true"></span></button>
 							    </h4>
 						   </div>
-						   <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+						   <div id="collapseThree" class="panel-collapse collapse" role="region" aria-labelledby="headingThree">
 							    <div class="panel-body">
                   <p>Every trip includes quality gear, a clear safety briefing, and a team prepared to respond. Adventure feels better when you can focus on the moment.</p>
 							  </div>
@@ -533,14 +549,14 @@
 </section>
 
 <!-- === PREMIUM LIGHTBOX === -->
-<div class="premium-lightbox" id="premiumLightbox" role="dialog" aria-modal="true" aria-label="Image viewer">
+<div class="premium-lightbox" id="premiumLightbox" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Image viewer">
   <div class="premium-lightbox__backdrop"></div>
   <button class="premium-lightbox__close" aria-label="Close lightbox">&times;</button>
   <button class="premium-lightbox__nav premium-lightbox__nav--prev" aria-label="Previous image">&#8249;</button>
   <button class="premium-lightbox__nav premium-lightbox__nav--next" aria-label="Next image">&#8250;</button>
   <div class="premium-lightbox__container">
     <div class="premium-lightbox__image-wrap">
-      <img class="premium-lightbox__img" src="" alt="Gallery image" />
+      <img class="premium-lightbox__img" alt="Gallery image" />
     </div>
     <span class="premium-lightbox__caption"></span>
     <span class="premium-lightbox__counter"></span>
@@ -578,7 +594,7 @@
 				<div class="g-badge">
           <div class="g-badge__text">
             <span class="g-badge__rating">Verified Google Maps reviews</span>
-            <span class="g-badge__count">Customer wording, names, and dates are reproduced from Google Maps. Rating: 4.1 stars from 1,140 reviews.</span>
+            <span class="g-badge__count">Customer wording, names, and dates are reproduced from Google Maps. Rating: 4.1 stars from 1,146 reviews.</span>
           </div>
           <a href="https://www.google.com/maps/place/Wondrous+Camp+-+Luxury+Camping+Resort+in+Rishikesh/@30.1538717,78.372268,17z/data=!4m8!3m7!1s0x3909113241e25579:0x65e244206fa83a67!8m2!3d30.1538717!4d78.372268!9m1!1b1!16s%2Fg%2F11dftpspp0" target="_blank" rel="noopener noreferrer" class="g-badge__cta">View all reviews</a>
 				</div>
@@ -650,16 +666,16 @@
 					<h2 class="heading">FAQ</h2>
 				</div>
 
-				<div class="faq-accordion" id="faqAccordion" role="tablist" aria-multiselectable="true">
+				<div class="faq-accordion" id="faqAccordion">
 					<div class="panel panel-default">
-						<div class="panel-heading" role="tab" id="faqHeadingOne">
+						<div class="panel-heading" id="faqHeadingOne">
 							<h4 class="panel-title">
                 <a class="faq-dropdown-btn" role="button" data-toggle="collapse" data-parent="#faqAccordion" href="#faqCollapseOne" aria-expanded="true" aria-controls="faqCollapseOne">
 									Is prior experience required?
 								</a>
 							</h4>
 						</div>
-						<div id="faqCollapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="faqHeadingOne">
+						<div id="faqCollapseOne" class="panel-collapse collapse in" role="region" aria-labelledby="faqHeadingOne">
 							<div class="panel-body">
 								<p>No—our guides adjust the plan to your pace. Beginners are welcome.</p>
 							</div>
@@ -667,14 +683,14 @@
 					</div>
 
 					<div class="panel panel-default">
-						<div class="panel-heading" role="tab" id="faqHeadingTwo">
+						<div class="panel-heading" id="faqHeadingTwo">
 							<h4 class="panel-title">
                 <a class="faq-dropdown-btn" role="button" data-toggle="collapse" data-parent="#faqAccordion" href="#faqCollapseTwo" aria-expanded="false" aria-controls="faqCollapseTwo">
 									Do you offer refunds or rescheduling?
 								</a>
 							</h4>
 						</div>
-						<div id="faqCollapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="faqHeadingTwo">
+						<div id="faqCollapseTwo" class="panel-collapse collapse" role="region" aria-labelledby="faqHeadingTwo">
 							<div class="panel-body">
 								<p>Yes. If conditions change, we'll reschedule when possible or provide a refund according to your booking.</p>
 							</div>
@@ -682,14 +698,14 @@
 					</div>
 
 					<div class="panel panel-default">
-						<div class="panel-heading" role="tab" id="faqHeadingThree">
+						<div class="panel-heading" id="faqHeadingThree">
 							<h4 class="panel-title">
                 <a class="faq-dropdown-btn" role="button" data-toggle="collapse" data-parent="#faqAccordion" href="#faqCollapseThree" aria-expanded="false" aria-controls="faqCollapseThree">
 									What safety measures are in place?
 								</a>
 							</h4>
 						</div>
-						<div id="faqCollapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="faqHeadingThree">
+						<div id="faqCollapseThree" class="panel-collapse collapse" role="region" aria-labelledby="faqHeadingThree">
 							<div class="panel-body">
 								<p>Don't worry. All activities include certified guides, top-grade equipment, safety briefings, and first-aid kits. Our team is trained in emergency response and river rescue protocols.</p>
 							</div>
@@ -697,14 +713,14 @@
 					</div>
 
 					<div class="panel panel-default">
-						<div class="panel-heading" role="tab" id="faqHeadingFour">
+						<div class="panel-heading" id="faqHeadingFour">
 							<h4 class="panel-title">
                 <a class="faq-dropdown-btn" role="button" data-toggle="collapse" data-parent="#faqAccordion" href="#faqCollapseFour" aria-expanded="false" aria-controls="faqCollapseFour">
                   Can we explore the surrounding areas during our stay?
 								</a>
 							</h4>
 						</div>
-						<div id="faqCollapseFour" class="panel-collapse collapse" role="tabpanel" aria-labelledby="faqHeadingFour">
+						<div id="faqCollapseFour" class="panel-collapse collapse" role="region" aria-labelledby="faqHeadingFour">
 							<div class="panel-body">
 								<p>Sure you can! We encourage our guests to explore the beautiful surroundings and experience the local culture, infact there is a stream flowing down the hill you can go and enjoy there.</p>
 							</div>
@@ -712,14 +728,14 @@
 					</div>
 
 					<div class="panel panel-default">
-						<div class="panel-heading" role="tab" id="faqHeadingFive">
+						<div class="panel-heading" id="faqHeadingFive">
 							<h4 class="panel-title">
                 <a class="faq-dropdown-btn" role="button" data-toggle="collapse" data-parent="#faqAccordion" href="#faqCollapseFive" aria-expanded="false" aria-controls="faqCollapseFive">
 									Can I customize my package?
 								</a>
 							</h4>
 						</div>
-						<div id="faqCollapseFive" class="panel-collapse collapse" role="tabpanel" aria-labelledby="faqHeadingFive">
+						<div id="faqCollapseFive" class="panel-collapse collapse" role="region" aria-labelledby="faqHeadingFive">
 							<div class="panel-body">
 								<p>Absolutely! Contact us with your preferences and we'll tailor the itinerary, activities, and duration to suit your group perfectly.</p>
 							</div>
@@ -727,14 +743,14 @@
 					</div>
 
 					<div class="panel panel-default">
-						<div class="panel-heading" role="tab" id="faqHeadingSix">
+						<div class="panel-heading" id="faqHeadingSix">
 							<h4 class="panel-title">
                 <a class="faq-dropdown-btn" role="button" data-toggle="collapse" data-parent="#faqAccordion" href="#faqCollapseSix" aria-expanded="false" aria-controls="faqCollapseSix">
 									Do you offer group discounts?
 								</a>
 							</h4>
 						</div>
-						<div id="faqCollapseSix" class="panel-collapse collapse" role="tabpanel" aria-labelledby="faqHeadingSix">
+						<div id="faqCollapseSix" class="panel-collapse collapse" role="region" aria-labelledby="faqHeadingSix">
 							<div class="panel-body">
 								<p>Yes—groups receive special pricing. Get in touch and we'll create a custom quote with the best rates for your group.</p>
 							</div>
@@ -742,19 +758,20 @@
 					</div>
 
 					<div class="panel panel-default">
-						<div class="panel-heading" role="tab" id="faqHeadingSeven">
+						<div class="panel-heading" id="faqHeadingSeven">
 							<h4 class="panel-title">
                 <a class="faq-dropdown-btn" role="button" data-toggle="collapse" data-parent="#faqAccordion" href="#faqCollapseSeven" aria-expanded="false" aria-controls="faqCollapseSeven">
 									What is the best time to visit Rishikesh?
 								</a>
 							</h4>
 						</div>
-						<div id="faqCollapseSeven" class="panel-collapse collapse" role="tabpanel" aria-labelledby="faqHeadingSeven">
+						<div id="faqCollapseSeven" class="panel-collapse collapse" role="region" aria-labelledby="faqHeadingSeven">
 							<div class="panel-body">
 								<p>The ideal season is September to June. Monsoon season (July–August) may affect river activities, so we advise checking availability ahead of time.</p>
 							</div>
 						</div>
 					</div>
+					<p class="faq-contact-note">Still have a question? Our local team is just a message away.</p>
 				</div>
 			</div>
 		</div>
@@ -780,7 +797,7 @@
             <h3 class="plan-title">Deluxe Cottage (Cooler)</h3>
           </div>
           <div class="plan-price">
-            <h3 class="plan-price-title" data-package-price="Villager">Rs 1,600 / <small>Day</small></h3>
+            <h3 class="plan-price-title" data-package-price="Villager">Rs 1,600 / <small>person / night</small></h3>
           </div>
           <ul class="plan-list">
             <li>3 Bed with Cooler</li>
@@ -801,7 +818,7 @@
             <h3 class="plan-title">Deluxe Cottage (AC)</h3>
           </div>
           <div class="plan-price">
-            <h3 class="plan-price-title" data-package-price="Tourer">Rs 2,000 / <small>Day</small></h3>
+            <h3 class="plan-price-title" data-package-price="Tourer">Rs 2,000 / <small>person / night</small></h3>
           </div>
           <ul class="plan-list">
             <li>2 Bed with AC</li>
@@ -826,7 +843,7 @@
 </section>
 
 <!-- === PREMIUM PACKAGE MODAL === -->
-<div class="pkg-modal" id="packageModal" role="dialog" aria-modal="true" aria-label="Package details">
+<div class="pkg-modal" id="packageModal" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Package details">
   <div class="pkg-modal__backdrop" id="pkgModalBackdrop"></div>
   <div class="pkg-modal__container" id="pkgModalContainer">
     <button class="pkg-modal__close" id="pkgModalClose" aria-label="Close modal">&times;</button>
@@ -850,7 +867,7 @@
         </div>
         <div class="pkg-header__price-box">
           <div class="pkg-header__price-label">Starting From</div>
-          <div class="pkg-header__price-value" id="pkgPrice">Rs 0 <small>/ trip</small></div>
+          <div class="pkg-header__price-value" id="pkgPrice">Rs 0 <small>/ person / night</small></div>
         </div>
       </div>
 
@@ -954,7 +971,7 @@
     <div class="pkg-cta">
       <div class="pkg-cta__price">
         <span class="pkg-cta__price-label">Starting Price</span>
-        <span class="pkg-cta__price-value" id="pkgCtaPrice">Rs 0 <small>/ trip</small></span>
+        <span class="pkg-cta__price-value" id="pkgCtaPrice">Rs 0 <small>/ person / night</small></span>
       </div>
       <button class="pkg-cta__btn" id="pkgBookNowBtn">Book Now</button>
     </div>
@@ -991,14 +1008,14 @@
               <div class="field field--dropdown">
                 <label class="field__label" for="activitiesDropdownBtn">Adventure Activities</label>
                 <div class="activities-dropdown" id="activitiesDropdown">
-                  <button type="button" class="activities-dropdown__btn" id="activitiesDropdownBtn" aria-expanded="false" aria-haspopup="listbox">
+                  <button type="button" class="activities-dropdown__btn" id="activitiesDropdownBtn" aria-expanded="false">
                     <span class="activities-dropdown__placeholder">Select activities</span>
-                    <span class="activities-dropdown__selected" aria-hidden="true"></span>
+                    <span class="activities-dropdown__selected"></span>
                     <svg class="activities-dropdown__arrow" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
                       <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                   </button>
-                  <div class="activities-dropdown__panel" role="listbox" aria-label="Select activities" aria-hidden="true" id="activitiesDropdownPanel">
+                  <div class="activities-dropdown__panel" role="group" aria-label="Select activities" aria-hidden="true" id="activitiesDropdownPanel">
                     <div class="activities-option-group">
                       <label class="check">
                         <input type="checkbox" name="activities" value="Rafting" id="raftingActivityOption" />
@@ -1036,23 +1053,10 @@
                 <div class="field__error" id="error-activities" aria-live="polite"></div>
               </div>
 
-              <div class="field field--dropdown">
-                <label class="field__label" for="packageDropdownBtn">Package</label>
-                <div class="package-dropdown" id="packageDropdown">
-                  <button type="button" class="package-dropdown__btn" id="packageDropdownBtn" aria-expanded="false" aria-haspopup="listbox">
-                    <span class="package-dropdown__placeholder">Select package</span>
-                    <span class="package-dropdown__selected" aria-hidden="true"></span>
-                    <svg class="package-dropdown__arrow" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                      <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                  </button>
-                  <div class="package-dropdown__panel" role="listbox" aria-label="Select package" aria-hidden="true" id="packageDropdownPanel">
-                    <button type="button" class="package-dropdown__option" data-value="Deluxe Cottage (Cooler)">Deluxe Cottage (Cooler)</button>
-                    <button type="button" class="package-dropdown__option" data-value="Deluxe Cottage (AC)">Deluxe Cottage (AC)</button>
-                  </div>
-                </div>
-                <div class="field__error" id="error-package" aria-live="polite"></div>
-                <p class="package-price-hint" id="packagePriceHint" aria-live="polite">Our prices vary by Day. Please refer to the respective package for pricing details.</p>
+              <div class="field">
+                <label class="field__label" for="date">Preferred Date</label>
+                <input class="field__control" id="date" name="date" type="date" required />
+                <div class="field__error" id="error-date" aria-live="polite"></div>
               </div>
 
               <div class="field">
@@ -1061,10 +1065,30 @@
                 <div class="field__error" id="error-people" aria-live="polite"></div>
               </div>
 
-              <div class="field">
-                <label class="field__label" for="date">Preferred Date</label>
-                <input class="field__control" id="date" name="date" type="date" required />
-                <div class="field__error" id="error-date" aria-live="polite"></div>
+              <div class="field field--dropdown">
+                <label class="field__label" for="packageDropdownBtn">Package</label>
+                <div class="package-dropdown" id="packageDropdown">
+                  <button type="button" class="package-dropdown__btn" id="packageDropdownBtn" aria-expanded="false">
+                    <span class="package-dropdown__placeholder">Select package</span>
+                    <span class="package-dropdown__selected"></span>
+                    <span class="package-dropdown__selected-price"></span>
+                    <svg class="package-dropdown__arrow" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                      <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                  <div class="package-dropdown__panel" role="group" aria-label="Select package" aria-hidden="true" id="packageDropdownPanel">
+                    <button type="button" class="package-dropdown__option" data-value="Deluxe Cottage (Cooler)">
+                      <span>Deluxe Cottage (Cooler)</span>
+                      <span class="package-dropdown__price" data-package-option-price="Villager"></span>
+                    </button>
+                    <button type="button" class="package-dropdown__option" data-value="Deluxe Cottage (AC)">
+                      <span>Deluxe Cottage (AC)</span>
+                      <span class="package-dropdown__price" data-package-option-price="Tourer"></span>
+                    </button>
+                  </div>
+                </div>
+                <div class="field__error" id="error-package" aria-live="polite"></div>
+                <p class="package-price-hint" id="packagePriceHint" aria-live="polite">Prices may vary based on your check-in date so please check the details of the package</p>
               </div>
 
               <div class="field field--full">
@@ -1084,7 +1108,7 @@
 
     <aside class="contact-card contact-card--map" aria-label="Map">
         <div class="contact-map">
-          <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3456.789!2d78.372268!3d30.1538717!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3909113241e25579%3A0x65e244206fa83a67!2sWondrous%20Camp%20-%20Luxury%20Camping%20Resort%20in%20Rishikesh!5e0!3m2!1sen!2sin!4v1"
+          <iframe src="https://www.google.com/maps?output=embed&amp;q=Wondrous+Camp+-+Luxury+Camping+Resort+in+Rishikesh&amp;z=17"
             title="Google Map"
             loading="lazy"
             referrerpolicy="no-referrer-when-downgrade"></iframe>
@@ -1092,6 +1116,20 @@
     </aside>
   </div>
 </section>
+
+<!-- === Closing booking invitation === -->
+<section class="contact-cta" aria-labelledby="contactCtaTitle">
+  <img src="Media/Gallery/G%20(2).jpg" alt="" loading="lazy" />
+  <div class="contact-cta__shade"></div>
+  <div class="contact-cta__content">
+    <p class="contact-cta__eyebrow"><span aria-hidden="true"></span> YOUR RISHIKESH STORY STARTS HERE</p>
+    <h2 id="contactCtaTitle">The river is<br><em>calling.</em></h2>
+    <p>Tell us what a perfect escape looks like. We’ll help you find your way there.</p>
+  </div>
+  <span class="contact-cta__note">IN THE FOOTHILLS OF THE HIMALAYAS</span>
+</section>
+
+</main>
 
 <!-- === Floating Buttons (Call & WhatsApp) === -->
 <div class="mobile-fab" aria-label="Quick contact options">
@@ -1163,16 +1201,6 @@
           </div>
         </div>
 
-        <div class="footer-col footer-col--social" aria-label="Social links">
-          <h3 class="footer-col__title">Follow</h3>
-            <ul class="social-icon" aria-label="Social icons">
-              <li><a href="#" aria-label="Facebook"><span aria-hidden="true">f</span></a></li>
-              <li><a href="#" aria-label="Twitter"><span aria-hidden="true">x</span></a></li>
-              <li><a href="#" aria-label="Instagram"><span aria-hidden="true">◎</span></a></li>
-              <li><a href="#" aria-label="YouTube"><span aria-hidden="true">▶</span></a></li>
-            </ul>
-          <div class="footer-microcopy">Your next adventure starts here.</div>
-        </div>
       </div>
 
       <div class="footer-bottom" aria-label="Copyright and links">
