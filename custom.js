@@ -42,6 +42,110 @@
     return dateField ? dateField.value : "";
   }
 
+  function getSelectedContactPackage() {
+    var packageSelected = document.querySelector(
+      "#packageDropdown .package-dropdown__selected",
+    );
+    var packageValue = packageSelected
+      ? packageSelected.textContent.trim()
+      : "";
+
+    if (packageValue !== "Others") return packageValue;
+
+    var otherPackageSelected = document.querySelector(
+      "#otherPackageDropdown .package-dropdown__selected",
+    );
+    return otherPackageSelected
+      ? otherPackageSelected.textContent.trim()
+      : "";
+  }
+
+  function getOtherPackagePrice(packageName) {
+    var packageCard = Array.prototype.find.call(
+      document.querySelectorAll(".other-package"),
+      function (card) {
+        var name = card.querySelector(".other-package__name");
+        return name && name.textContent.trim() === packageName;
+      },
+    );
+    var price = packageCard
+      ? packageCard.querySelector(".other-package__price")
+      : null;
+    return price ? price.textContent.trim() : "";
+  }
+
+  function setContactPackageSelection(value) {
+    var packageDropdown = document.getElementById("packageDropdown");
+    var otherPackageDropdown = document.getElementById(
+      "otherPackageDropdown",
+    );
+    if (!packageDropdown) return;
+
+    var normalizedValue = String(value || "").trim();
+    var isOtherPackage = Array.prototype.some.call(
+      document.querySelectorAll(
+        "#otherPackageDropdown .package-dropdown__option",
+      ),
+      function (option) {
+        return option.getAttribute("data-value") === normalizedValue;
+      },
+    );
+    var isOthers = normalizedValue === "Others" || isOtherPackage;
+    var packagePlaceholder = packageDropdown.querySelector(
+      ".package-dropdown__placeholder",
+    );
+    var packageSelected = packageDropdown.querySelector(
+      ".package-dropdown__selected",
+    );
+    var packageSelectedPrice = packageDropdown.querySelector(
+      ".package-dropdown__selected-price",
+    );
+
+    if (packagePlaceholder && packageSelected) {
+      if (normalizedValue) {
+        packagePlaceholder.style.display = "none";
+        packageSelected.style.display = "block";
+        packageSelected.textContent = isOthers ? "Others" : normalizedValue;
+      } else {
+        packagePlaceholder.style.display = "block";
+        packageSelected.style.display = "none";
+        packageSelected.textContent = "";
+      }
+    }
+
+    if (packageSelectedPrice) {
+      packageSelectedPrice.style.display = "none";
+      packageSelectedPrice.textContent = "";
+    }
+
+    if (!otherPackageDropdown) return;
+    var otherPlaceholder = otherPackageDropdown.querySelector(
+      ".package-dropdown__placeholder",
+    );
+    var otherSelected = otherPackageDropdown.querySelector(
+      ".package-dropdown__selected",
+    );
+    var otherButton = document.getElementById("otherPackageDropdownBtn");
+    var otherPanel = document.getElementById("otherPackageDropdownPanel");
+
+    otherPackageDropdown.hidden = !isOthers;
+    otherPackageDropdown.classList.remove("package-dropdown--open");
+    if (otherButton) otherButton.setAttribute("aria-expanded", "false");
+    if (otherPanel) otherPanel.setAttribute("aria-hidden", "true");
+
+    if (otherPlaceholder && otherSelected) {
+      if (isOtherPackage) {
+        otherPlaceholder.style.display = "none";
+        otherSelected.style.display = "block";
+        otherSelected.textContent = normalizedValue;
+      } else {
+        otherPlaceholder.style.display = "block";
+        otherSelected.style.display = "none";
+        otherSelected.textContent = "";
+      }
+    }
+  }
+
   function formatRupees(amount) {
     return amount.toLocaleString("en-IN");
   }
@@ -95,9 +199,10 @@
     var selectedPrice = packageDropdown
       ? packageDropdown.querySelector(".package-dropdown__selected-price")
       : null;
-    if (selectedPackage && selectedPrice && selectedPackage.textContent.trim()) {
+    var selectedPackageName = getSelectedContactPackage();
+    if (selectedPackage && selectedPrice && selectedPackageName) {
       var selectedPackageKey = Object.keys(PACKAGE_PRICING).find(function (key) {
-        return PACKAGE_PRICING[key].name === selectedPackage.textContent.trim();
+        return PACKAGE_PRICING[key].name === selectedPackageName;
       });
       var selectedRate = selectedPackageKey
         ? getPackageRate(selectedPackageKey, dateValue)
@@ -1180,6 +1285,11 @@
     var packageDropdown = document.getElementById("packageDropdown");
     var packageBtn = document.getElementById("packageDropdownBtn");
     var packagePanel = document.getElementById("packageDropdownPanel");
+    var otherPackageDropdown = document.getElementById("otherPackageDropdown");
+    var otherPackageBtn = document.getElementById("otherPackageDropdownBtn");
+    var otherPackagePanel = document.getElementById(
+      "otherPackageDropdownPanel",
+    );
 
     if (packageDropdown && packageBtn && packagePanel) {
       packageBtn.addEventListener("click", function (event) {
@@ -1223,18 +1333,7 @@
             }
 
             var value = option.getAttribute("data-value");
-            var placeholder = packageDropdown.querySelector(
-              ".package-dropdown__placeholder",
-            );
-            var selected = packageDropdown.querySelector(
-              ".package-dropdown__selected",
-            );
-
-            if (placeholder && selected) {
-              placeholder.style.display = "none";
-              selected.style.display = "block";
-              selected.textContent = value;
-            }
+            setContactPackageSelection(value);
 
             if (packageError) {
               packageError.textContent = "";
@@ -1244,8 +1343,64 @@
             packageDropdown.classList.remove("package-dropdown--open");
             packageBtn.setAttribute("aria-expanded", "false");
             packagePanel.setAttribute("aria-hidden", "true");
+
+            if (
+              value === "Others" &&
+              otherPackageDropdown &&
+              otherPackageBtn &&
+              otherPackagePanel
+            ) {
+              otherPackageDropdown.classList.add("package-dropdown--open");
+              otherPackageBtn.setAttribute("aria-expanded", "true");
+              otherPackagePanel.setAttribute("aria-hidden", "false");
+              otherPackageBtn.focus();
+            }
           });
         });
+
+      if (otherPackageDropdown && otherPackageBtn && otherPackagePanel) {
+        otherPackageBtn.addEventListener("click", function (event) {
+          event.stopPropagation();
+          var dateField = document.getElementById("date");
+          var packageError = document.getElementById("error-package");
+          if (!dateField || !dateField.value) {
+            if (packageError) {
+              packageError.textContent = "First select the check-in date.";
+            }
+            return;
+          }
+
+          if (packageError) packageError.textContent = "";
+          var isOpen = otherPackageDropdown.classList.toggle(
+            "package-dropdown--open",
+          );
+          otherPackageBtn.setAttribute("aria-expanded", String(isOpen));
+          otherPackagePanel.setAttribute("aria-hidden", String(!isOpen));
+        });
+
+        otherPackagePanel
+          .querySelectorAll(".package-dropdown__option")
+          .forEach(function (option) {
+            option.addEventListener("click", function (event) {
+              event.stopPropagation();
+              var value = option.getAttribute("data-value");
+              var packageError = document.getElementById("error-package");
+              setContactPackageSelection(value);
+              if (packageError) packageError.textContent = "";
+              otherPackageBtn.focus();
+            });
+          });
+
+        document.addEventListener("click", function (event) {
+          if (!otherPackageDropdown.contains(event.target)) {
+            otherPackageDropdown.classList.remove(
+              "package-dropdown--open",
+            );
+            otherPackageBtn.setAttribute("aria-expanded", "false");
+            otherPackagePanel.setAttribute("aria-hidden", "true");
+          }
+        });
+      }
 
       document.addEventListener("click", function (event) {
         if (!packageDropdown.contains(event.target)) {
@@ -1384,15 +1539,24 @@
       }
 
       var dateField = form.querySelector("#date");
-      var packageValue = document.querySelector(
+      var packageValue = getSelectedContactPackage();
+      var selectedPackageElement = document.querySelector(
         "#packageDropdown .package-dropdown__selected",
       );
+      var selectedPackageIsOthers =
+        selectedPackageElement &&
+        selectedPackageElement.textContent.trim() === "Others";
       if (!dateField || !dateField.value) {
         ok = false;
         showError("package", "First select the check-in date.");
-      } else if (!packageValue || !packageValue.textContent.trim()) {
+      } else if (!packageValue) {
         ok = false;
-        showError("package", "Please select a package.");
+        showError(
+          "package",
+          selectedPackageIsOthers
+            ? "Please select an other package."
+            : "Please select a package.",
+        );
       } else {
         clearError("package");
       }
@@ -1446,12 +1610,7 @@
       var fullName = form.querySelector("#fullName").value.trim();
       var phone = form.querySelector("#phone").value.trim();
       var activities = getSelectedActivities().join(", ");
-      var selectedPackage = document.querySelector(
-        "#packageDropdown .package-dropdown__selected",
-      );
-      var packageValue = selectedPackage
-        ? selectedPackage.textContent.trim()
-        : "";
+      var packageValue = getSelectedContactPackage();
       var people = form.querySelector("#people").value.trim();
       var dateValue = form.querySelector("#date").value.trim();
       var requests = form.querySelector("#requests").value.trim() || "None";
@@ -1461,6 +1620,7 @@
       var packageRate = selectedPackageKey
         ? getPackageRate(selectedPackageKey, dateValue)
         : null;
+      var otherPackagePrice = getOtherPackagePrice(packageValue);
       var submitBtn = form.querySelector('button[type="submit"]');
       if (submitBtn) {
         submitBtn.disabled = true;
@@ -1489,7 +1649,7 @@
               " per person per night (" +
               packageRate.label +
               ")"
-            : "",
+            : otherPackagePrice,
           "Number of People": people,
           "Preferred Date": dateValue,
           "Special Requests": requests,
@@ -1520,11 +1680,19 @@
           var packagePlaceholder = document.querySelector(
             "#packageDropdown .package-dropdown__placeholder",
           );
+          var packageSelectedPrice = document.querySelector(
+            "#packageDropdown .package-dropdown__selected-price",
+          );
           if (packageSelected && packagePlaceholder) {
             packagePlaceholder.style.display = "block";
             packageSelected.style.display = "none";
             packageSelected.textContent = "";
           }
+          if (packageSelectedPrice) {
+            packageSelectedPrice.style.display = "none";
+            packageSelectedPrice.textContent = "";
+          }
+          setContactPackageSelection("");
 
           var activitiesSelected = document.querySelector(
             "#activitiesDropdown .activities-dropdown__selected",
@@ -1673,6 +1841,7 @@
           "A minimum of 35% advance payment is required to confirm the booking Confirmation will be shared after successful payment."
         ],
       },
+
     };
 
     function setupCarousel(pkg) {
@@ -1890,17 +2059,7 @@
       bookNowBtn.addEventListener("click", function () {
         var current = modal.getAttribute("data-current-pkg");
         if (current) {
-          var selected = document.querySelector(
-            "#packageDropdown .package-dropdown__selected",
-          );
-          var placeholder = document.querySelector(
-            "#packageDropdown .package-dropdown__placeholder",
-          );
-          if (selected && placeholder) {
-            placeholder.style.display = "none";
-            selected.style.display = "block";
-            selected.textContent = PACKAGES[current].name;
-          }
+          setContactPackageSelection(PACKAGES[current].name);
         }
         closePackage();
         document
@@ -1930,6 +2089,68 @@
     if (footerYear) footerYear.textContent = new Date().getFullYear();
   }
 
+  function setupOtherPackageEnquiries() {
+    var modal = document.getElementById("otherPackagesModal");
+    var openButton = document.getElementById("otherPackagesOpen");
+    var closeButton = document.getElementById("otherPackagesClose");
+    var backdrop = document.getElementById("otherPackagesBackdrop");
+    if (!modal || !openButton || !closeButton || !backdrop) return;
+
+    setupAccessibleDialog(modal);
+
+    function openOtherPackages() {
+      openAccessibleDialog(modal, closeButton);
+      window.setTimeout(function () {
+        closeButton.focus();
+      }, 50);
+      openButton.setAttribute("aria-expanded", "true");
+    }
+
+    function closeOtherPackages() {
+      if (!modal.classList.contains("is-open")) return;
+      closeAccessibleDialog(modal);
+      openButton.setAttribute("aria-expanded", "false");
+    }
+
+    openButton.addEventListener("click", openOtherPackages);
+    closeButton.addEventListener("click", closeOtherPackages);
+    backdrop.addEventListener("click", closeOtherPackages);
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && modal.classList.contains("is-open")) {
+        closeOtherPackages();
+      }
+    });
+
+    document.querySelectorAll(".other-package__button").forEach(function (button) {
+      button.addEventListener("click", function () {
+        var card = button.closest(".other-package");
+        var packageName = card
+          ? card.querySelector(".other-package__name")
+          : null;
+        var packagePrice = card
+          ? card.querySelector(".other-package__price")
+          : null;
+        var requests = document.getElementById("requests");
+
+        if (!packageName || !packagePrice) return;
+
+        setContactPackageSelection(packageName.textContent.trim());
+        if (requests) {
+          requests.value =
+            "Package inquiry: " +
+            packageName.textContent.trim() +
+            " (" +
+            packagePrice.textContent.trim() +
+            ").";
+        }
+
+        var packageError = document.getElementById("error-package");
+        if (packageError) packageError.textContent = "";
+        closeOtherPackages();
+      });
+    });
+  }
+
   setupHomeSlideshow();
   setupNavActiveState();
   setupMobileNav();
@@ -1943,6 +2164,7 @@
   setupDropdowns();
   setupForm();
   setupPackageModal();
+  setupOtherPackageEnquiries();
   updatePackagePricing();
   setupFooterYear();
 })();
