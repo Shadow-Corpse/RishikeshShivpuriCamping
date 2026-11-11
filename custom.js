@@ -722,20 +722,28 @@
         badges: ["Certified guides", "Safety briefing", "Scenic route"],
         pricing: [
           {
-            option: "Brahmapuri / Club House — 9 km, about 1 hour (Grade I–II)",
-            price: "From Rs 450/person",
+            option: "Marine Drive to Shivpuri 12 km with swimming & body surfing",
+            price: "From Rs 650/person",
           },
           {
-            option: "Shivpuri — 16 km, about 2 hours (Grade III)",
-            price: "From Rs 700/person",
+            option: "Shivpuri to NIM Beach with swimming & body surfing",
+            price: "From Rs 1,000/person",
           },
           {
-            option: "Marine Drive — 25 km, about 3 hours (Grade III)",
-            price: "From Rs 1,100/person",
+            option: "Raja Pade to Shivpuri with swimming & body surfing",
+            price: "From Rs 850/person",
           },
           {
-            option: "Kaudiyala — 36 km, about 4–5 hours (Grade IV); minimum 5 people",
+            option: "Marine Drive to NIM Beach with swimming & body surfing",
+            price: "From Rs 1,600/person",
+          },
+          {
+            option: "Raja Pade to NIM Beach 32 km",
             price: "From Rs 2,000/person",
+          },
+          {
+            option: "Kaudiyala to NIM Beach 35 km Grade IV + rapid",
+            price: "From Rs 2,800/person",
           },
         ],
         pricingNote: "Published starting rates; confirm availability and final pricing before booking. Ask us about group rates for 10 or more.",
@@ -1759,7 +1767,7 @@
           "Access to all Facilities",
         ],
         activities: [
-          "Dart", "Table Tennis", "Volleyball & Badminton", "Nature Walk (Trekking)", "Bungee Jumping", "Located just 300 meters from a scenic tributary river"
+          "Dart", "Table Tennis", "Volleyball & Badminton", "Nature Walk (Trekking)", "Located just 300 meters from a scenic tributary river"
         ],
         accommodation:
           "<p>Stay in a comfortable premium cottages equipped with cooler, cosy bedding and a attached Western washroom.</p>",
@@ -1811,7 +1819,7 @@
           "Access to all Facilities",
         ],
         activities: [
-          "Dart", "Table Tennis", "Volleyball & Badminton", "Nature Walk (Trekking)", "Bungee Jumping", "Located just 300 meters from a scenic tributary river"
+          "Dart", "Table Tennis", "Volleyball & Badminton", "Nature Walk (Trekking)", "Located just 300 meters from a scenic tributary river"
         ],
         accommodation:
           "<p>Stay in a comfortable premium cottages equipped with AC, cosy bedding and a attached Western washroom.</p>",
